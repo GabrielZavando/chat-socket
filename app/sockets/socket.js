@@ -32,6 +32,7 @@ io.on('connection', (client) =>{
 
     // Se dispara cuando un usuario se conecta. Nos sirve para actualizar la lista de personas que hay en el frontend
     client.broadcast.to(user.sala).emit('listaPersonas', usuarios.getPersonasPorSala(user.sala))
+    client.broadcast.to(user.sala).emit('crearMensaje', crearMensaje('Administrador', `${user.nombre} entró`))
 
     callback(usuarios.getPersonasPorSala(user.sala))
 
@@ -39,11 +40,13 @@ io.on('connection', (client) =>{
   })
 
   //Escuchamos mensaje del cliente (usuario)
-  client.on('crearMensaje', (data) => {
+  client.on('crearMensaje', (data, callback) => {
     let usuario = usuarios.getPersona(client.id)
     let mensaje = crearMensaje(usuario.nombre, data.mensaje)
     // Emitimos el mensaje a todos los usuarios conectados
     client.broadcast.to(usuario.sala).emit('crearMensaje', mensaje)
+
+    callback(mensaje)
   })
 
 
